@@ -43,6 +43,23 @@ function appEnd()
   --main:Free()
 end
 
+function getEdit(sender,x,y,v)
+  print("getEdit")
+  print(x,y,v)
+  return v
+end
+
+function setEdit(sender,x,y,v)
+  print("setEdit")
+  print(x,y,v)
+  return false
+end
+
+function OnHeaderClick(sender,IsColumn,index)
+  print("OnHeaderClick")
+  print(IsColumn,index)
+end
+
 env=luasql.sqlite3()
 conn=assert(env:connect("prachy.db3"))
 
@@ -51,7 +68,7 @@ main=VCL.Form("mainWin")
 main._={ caption="Svlad", width=500, height=500, onshow="listtables", onclose="appEnd" }
 
 tabl=VCL.StringGrid(main,"table")
-tabl._={ align="alClient", rowCount=99, ColCount=99,  AutoEdit=1 }
+tabl._={ align="alClient", rowCount=99, ColCount=99,  AutoEdit=1, Options="goEditing,goRowSizing,goColSizing", OnSetEditText="setEdit", OnGetEditText="getEdit", OnHeaderClick="OnHeaderClick" }
 
 p=VCL.Panel(main,"panel")
 p._={ align="alBottom", height=90 }
