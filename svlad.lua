@@ -60,12 +60,34 @@ function OnHeaderClick(sender,IsColumn,index)
   print(IsColumn,index)
 end
 
+function showAbout(sender)
+  VCL.ShowMessage("SVLAD\n\nTable editor by Severak")
+end
+
 env=luasql.sqlite3()
 conn=assert(env:connect("prachy.db3"))
 
+menu={
+  {caption="&Databases",submenu={
+    {caption="&Attach"},
+    {caption="&Import"},
+    {caption="&Export"}
+  }},
+  {caption="&Actions",submenu={
+    {caption="&Show tables"}
+  }},
+  {caption="&About",submenu={
+    {name="about",caption="&About",onclick="showAbout"},
+    {caption="-"},
+    {caption="&Info"}
+  }}
+}
 
 main=VCL.Form("mainWin")
 main._={ caption="Svlad", width=500, height=500, onshow="listtables", onclose="appEnd" }
+
+mainMenu=VCL.MainMenu("mm")
+mainMenu:LoadFromTable(menu)
 
 tabl=VCL.StringGrid(main,"table")
 tabl._={ align="alClient", rowCount=99, ColCount=99,  AutoEdit=1, Options="goEditing,goRowSizing,goColSizing", OnSetEditText="setEdit", OnGetEditText="getEdit", OnHeaderClick="OnHeaderClick" }
@@ -78,5 +100,7 @@ sql._={ align="alClient",  font={name="Courier"} }
 
 fire=VCL.Button(p,"fire")
 fire._={ align="alBottom", caption="PAL!", onclick="sql_dotaz" }
+
+showAbout()
 
 main:ShowModal()
