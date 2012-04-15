@@ -1,27 +1,57 @@
 --Skeleton SVLADa
 require "vcl"
+require "luasql.sqlite3"
 
-function nasobilka()
-  for x=1,9 do
-    for y=1,9 do
-      tabl:SetCell(x,y,x*y)
+function showresult(dotaz)
+  res=assert(conn:execute(dotaz))
+  if type(res)=="number" then
+    VCL.ShowMessage("Zmeneno "..res.." radek.")
+  else
+    cnames=res:getcolnames()
+    tabl.colCount=#cnames+1
+    tabl.rowCount=1
+    for k,v in pairs(cnames) do
+      tabl:SetCell(k,0,v)
     end
+    row=res:fetch({})
+    while row do
+      r=tabl:AddRow()
+      tabl:SetCell(0,r,r)
+      for k,v in pairs(row) do
+        tabl:SetCell(k,r,v)
+      end
+      row=res:fetch(row)   
+    end
+    res:close()
   end
 end
 
 function sql_dotaz(sender)
   dotaz=table.concat(sql:GetText())
-  VCL.ShowMessage(table.concat(sql:GetText(),"\n"))
-  if dotaz=="nasobilka" then
-    nasobilka()
+  passed,mesg=pcall(showresult,dotaz)
+  if not passed then
+    VCL.ShowMessage(mesg)  
   end
 end
 
+function listtables()
+  showresult("SELECT * FROM sqlite_master")
+end
+
+function appEnd()
+  conn:close()
+  --main:Free()
+end
+
+env=luasql.sqlite3()
+conn=assert(env:connect("prachy.db3"))
+
+
 main=VCL.Form("mainWin")
-main._={ caption="Svlad", width=500, height=500 }
+main._={ caption="Svlad", width=500, height=500, onshow="listtables", onclose="appEnd" }
 
 tabl=VCL.StringGrid(main,"table")
-tabl._={ align="alClient", rowCount=99, ColCount=99, AutoEdit=true }
+tabl._={ align="alClient", rowCount=99, ColCount=99,  AutoEdit=1 }
 
 p=VCL.Panel(main,"panel")
 p._={ align="alBottom", height=90 }
