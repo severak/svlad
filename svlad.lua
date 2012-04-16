@@ -64,6 +64,10 @@ function showAbout(sender)
   VCL.ShowMessage("SVLAD\n\nTable editor by Severak")
 end
 
+function showTables(sender)
+  showresult("SELECT * FROM sqlite_master WHERE type='table' ORDER BY name ASC")
+end
+
 env=luasql.sqlite3()
 conn=assert(env:connect("prachy.db3"))
 
@@ -74,7 +78,7 @@ menu={
     {caption="&Export"}
   }},
   {caption="&Actions",submenu={
-    {caption="&Show tables"}
+    {caption="&Show tables",onclick="showTables"}
   }},
   {caption="&About",submenu={
     {name="about",caption="&About",onclick="showAbout"},
@@ -100,7 +104,5 @@ sql._={ align="alClient",  font={name="Courier"} }
 
 fire=VCL.Button(p,"fire")
 fire._={ align="alBottom", caption="PAL!", onclick="sql_dotaz" }
-
-showAbout()
 
 main:ShowModal()
