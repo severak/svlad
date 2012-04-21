@@ -24,7 +24,9 @@ function tableMerge(t1, t2)
     for k,v in pairs(t2) do
         if type(v) == "table" then
                 if type(t1[k] or false) == "table" then
+                        local mt=getmetatable(t1[k])
                         tableMerge(t1[k] or {}, t2[k] or {})
+                        setmetatable(t1[k],mt)
                 else
                         t1[k] = v
                 end
@@ -88,7 +90,10 @@ then you can change it by calling rewriteSlots function with an change table par
   },
 --------------------------------------------------------------------------------  
   clone=function(self)
-    local new=deepcopy(self)
+    local new={}
+    setmetatable(new,{__index=self})
+    new._H={}
+    setmetatable(new._H,{__index=self._H})
     return new  
   end,
   
@@ -99,11 +104,16 @@ then you can change it by calling rewriteSlots function with an change table par
 
 
 helpful={
+  _H={
+    help={_basic="Print help from object internal documentation to console.",_usage="Call\n\n    object:help()\n\nor\n\n    object:help('methodName')"},
+    getSlots={_basic="Print list of names of enabled slots to console."}
+  },
+
   help=function(self,theme)
     local chapters=self._H
     
     if not chapters then
-       return false
+       print("No help aviable.")
     end
     
     if theme then
@@ -119,14 +129,37 @@ helpful={
       print(string.rep("=",string.len(chapters._Name)))
     end
     
-    for k,v in pairs(chapters) do
-      if string.sub(k,1,1)=="_" and k~="_Name" then
-        print("##"..string.sub(k,2))
-        print(v)
+    local names={"_basic","_usage","_more","_seealso","_example","_notes","_version"}
+    
+    for k,v in pairs(names) do
+      if chapters[v]~=nil then
+        print("##"..string.sub(v,2))
+        print(chapters[v])
         print("")
       end
     end
+  end,
+  
+  getSlots=function(self,visited)
+    if not visited then
+      visited={}
+    end
+    
+    for k,v in pairs(self) do
+      if visited[k]==nil then
+        print(" - "..k.." ("..type(v)..")")
+        visited[k]=1
+      end  
+    end
+    local mt=getmetatable(self)
+    if type(mt)=="table" and type(mt.__index)=="table" then
+      if type(mt.__index.getSlots)=="function" then
+        mt.__index:getSlots(visited)
+      end
+    end
   end
+  
+  
 }
 
 jo.object:rewriteSlots(jo.helpful)

@@ -43,5 +43,5 @@ Jarku:breath()
 Jarku:beep()
 print("Jarku is "..Jarku.color..".")
 
-Jarku:rewriteSlots(jo.helpful):help()
+--Jarku:rewriteSlots(jo.helpful):help()
 
