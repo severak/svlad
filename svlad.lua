@@ -69,11 +69,9 @@ GUI={
   setCell=function(x,y,v)
     if tabl.rowCount<y+1 then
       tabl.rowCount=y+1
-      print("+col")
     end
     if tabl.colCount<x+1 then
       tabl.colCount=x+1
-      print("+row")
     end
     tabl:SetCell(x,y,v)
   end
